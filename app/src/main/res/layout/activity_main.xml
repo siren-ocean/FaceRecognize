@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <siren.ocean.recognize.widget.CameraView
+            android:id="@+id/view_camera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <SurfaceView
+            android:id="@+id/view_surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignStart="@id/view_camera"
+            android:layout_alignTop="@id/view_camera"
+            android:layout_alignEnd="@id/view_camera"
+            android:layout_alignBottom="@id/view_camera" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_capture"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="100dp"
+        android:onClick="takePicture"
+        android:src="@drawable/selector_camera"
+        tools:ignore="UsingOnClickInXml" />
+
+    <include
+        android:id="@+id/include_bottom_sheet"
+        layout="@layout/include_bottom_sheet" />
+
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
