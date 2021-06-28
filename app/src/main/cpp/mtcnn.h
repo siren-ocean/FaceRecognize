@@ -14,8 +14,8 @@
 #include <map>
 #include <iostream>
 #include <math.h>
-#include <ncnn/mat.h>
-#include <ncnn/net.h>
+#include <mat.h>
+#include <net.h>
 #include "log.h"
 
 

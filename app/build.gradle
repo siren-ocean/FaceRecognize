@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "siren.ocean.recognize"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -16,20 +16,12 @@ android {
         renderscriptSupportModeEnabled true
         ndk {
             abiFilters 'armeabi-v7a', "arm64-v8a"
-            stl "gnustl_static"
-        }
-        externalNativeBuild {
-            cmake {
-                arguments "-DANDROID_TOOLCHAIN=clang"
-                cFlags "-fopenmp -O2 -fvisibility=hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math -fstack-protector-all"
-                cppFlags "-fopenmp -O2 -fvisibility=hidden -fvisibility-inlines-hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math -fstack-protector-all"
-                cppFlags "-std=c++11 -frtti -fexceptions -fPIC  -lz"
-            }
         }
     }
 
     externalNativeBuild {
         cmake {
+            version "3.10.2"
             path "CMakeLists.txt"
         }
     }

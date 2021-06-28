@@ -5,7 +5,7 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
-#include <ncnn/mat.h>
+#include <mat.h>
 #include "log.h"
 
 using namespace std;

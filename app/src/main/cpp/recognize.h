@@ -7,8 +7,8 @@
 
 #include <string>
 #include <algorithm>
-#include <ncnn/mat.h>
-#include <ncnn/net.h>
+#include <mat.h>
+#include <net.h>
 
 class Recognize {
 public:
