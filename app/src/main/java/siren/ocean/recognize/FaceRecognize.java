@@ -1,12 +1,7 @@
 package siren.ocean.recognize;
 
-import android.content.Context;
-import android.os.Environment;
+import android.content.res.AssetManager;
 import android.util.Log;
-
-import java.io.File;
-
-import siren.ocean.recognize.util.FileUtils;
 
 /**
  * 人脸识别器
@@ -20,9 +15,9 @@ public class FaceRecognize {
     static {
         try {
             System.loadLibrary("recognize");
-            Log.d("jniNativeClassInit", " success");
+            Log.d("FaceRecognize", " success");
         } catch (UnsatisfiedLinkError e) {
-            Log.e("error", "library not found");
+            Log.e("FaceRecognize", "library not found");
         }
     }
 
@@ -36,35 +31,6 @@ public class FaceRecognize {
             single = new FaceRecognize();
         }
         return single;
-    }
-
-    /**
-     * 初始化模型路径
-     *
-     * @param context
-     */
-    public void initModels(Context context) {
-        String det1Param = initPath(context, "det1.param");
-        String det1Bin = initPath(context, "det1.bin");
-        String det2Param = initPath(context, "det2.param");
-        String det2Bin = initPath(context, "det2.bin");
-        String det3Param = initPath(context, "det3.param");
-        String det3Bin = initPath(context, "det3.bin");
-        String mobilefacenetParam = initPath(context, "mobilefacenet.param");
-        String mobilefacenetBin = initPath(context, "mobilefacenet.bin");
-
-        String[] detectPath = new String[]{det1Param, det1Bin, det2Param, det2Bin, det3Param, det3Bin};
-        String[] recognizePath = new String[]{mobilefacenetParam, mobilefacenetBin};
-        initModels(detectPath, recognizePath);
-    }
-
-    private String initPath(Context context, String filename) {
-        String targetPath = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) + File.separator + filename;
-        File file = new File(targetPath);
-        if (!file.exists() || !file.isFile()) {
-            FileUtils.copyAssetsFile(context, filename, file);
-        }
-        return file.getPath();
     }
 
     public int[] detectFace(byte[] imageData, int width, int height, int imageType) {
@@ -82,11 +48,10 @@ public class FaceRecognize {
     /**
      * 初始化
      *
-     * @param detectPath    检测模型路径
-     * @param recognizePath 识别模型路径
+     * @param assetManager
      * @return
      */
-    private native boolean initModels(String[] detectPath, String[] recognizePath);
+    public native boolean initModels(AssetManager assetManager);
 
     /**
      * 人脸检测

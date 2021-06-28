@@ -5,9 +5,9 @@
 
 #include "recognize.h"
 
-Recognize::Recognize(std::vector<std::string> &modelFiles) {
-    Recognet.load_param(modelFiles[0].data());
-    Recognet.load_model(modelFiles[1].data());
+Recognize::Recognize(AAssetManager *mgr) {
+    Recognet.load_param(mgr, "mobilefacenet.param");
+    Recognet.load_model(mgr, "mobilefacenet.bin");
 }
 
 Recognize::~Recognize() {

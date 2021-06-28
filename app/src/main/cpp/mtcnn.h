@@ -36,7 +36,7 @@ struct Bbox {
 class MTCNN {
 
 public:
-    MTCNN(std::vector<std::string> &modelFiles);
+    MTCNN(AAssetManager *mgr);
 
     MTCNN(const string &model_path);
 

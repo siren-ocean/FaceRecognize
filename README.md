@@ -14,15 +14,6 @@ NDK: android-ndk-r19c
 <br>
 
 ```
-/**
-     * 初始化
-     *
-     * @param detectPath    检测模型路径
-     * @param recognizePath 识别模型路径
-     * @return
-     */
-    private native boolean initModels(String[] detectPath, String[] recognizePath);
-
     /**
      * 人脸检测
      *
@@ -48,14 +39,14 @@ NDK: android-ndk-r19c
 
 ```
 <br>
-检测模型用到mtcnn，并只检测最大人脸，提升检测速度。  
-识别模型使用insightface的长度为128的mobilefacenet，用于提取人脸特征。  
-一般特征值会保存进数据库，这里就不加了，避免提升整体的复杂度。  
-正常情况下内存也会预留一份特征数组，方便计算结果，一般用LRU策略，此处使用简单的Map模拟一下计算方式。
+1. 检测模型用到mtcnn，并只检测最大人脸，提升检测速度。  
+2. 识别模型使用insightface的长度为128的mobilefacenet，用于提取人脸特征。  
+3. 一般特征值会保存进数据库，这里就不加了，避免提升整体的复杂度。  
+4. 正常情况下内存也会预留一份特征数组，方便计算结果，一般用LRU策略，此处使用简单的Map模拟一下计算方式。
 
 
 
-###计算相似度。
+###计算相似度。   
 
 ```
 /**

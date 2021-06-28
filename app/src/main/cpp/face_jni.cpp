@@ -1,3 +1,4 @@
+#include <android/asset_manager_jni.h>
 #include <android/bitmap.h>
 #include <jni.h>
 #include <string>
@@ -16,13 +17,11 @@ extern "C" {
 
 JNIEXPORT jboolean JNICALL
 Java_siren_ocean_recognize_FaceRecognize_initModels(JNIEnv *env, jobject instance,
-                                                    jobjectArray path1,
-                                                    jobjectArray path2) {
+                                                    jobject assetManager) {
 
-    std::vector<std::string> vector1 = jniutils::modelToVector(env, path1);
-    std::vector<std::string> vector2 = jniutils::modelToVector(env, path2);
-    mtcnn = new MTCNN(vector1);
-    recognize = new Recognize(vector2);
+    AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
+    mtcnn = new MTCNN(mgr);
+    recognize = new Recognize(mgr);
     LOGD("init models success");
     return (jboolean) true;
 }

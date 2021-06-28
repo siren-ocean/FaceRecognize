@@ -32,13 +32,13 @@ bool cmpArea(Bbox lsh, Bbox rsh) {
         return true;
 }
 
-MTCNN::MTCNN(std::vector<std::string> &modelFiles) {
-    Pnet.load_param(modelFiles[0].data());
-    Pnet.load_model(modelFiles[1].data());
-    Rnet.load_param(modelFiles[2].data());
-    Rnet.load_model(modelFiles[3].data());
-    Onet.load_param(modelFiles[4].data());
-    Onet.load_model(modelFiles[5].data());
+MTCNN::MTCNN(AAssetManager *mgr) {
+    Pnet.load_param(mgr, "det1.param");
+    Pnet.load_model(mgr, "det1.bin");
+    Rnet.load_param(mgr, "det2.param");
+    Rnet.load_model(mgr, "det2.bin");
+    Onet.load_param(mgr, "det3.param");
+    Onet.load_model(mgr, "det3.bin");
 }
 
 //MTCNN::MTCNN(){}

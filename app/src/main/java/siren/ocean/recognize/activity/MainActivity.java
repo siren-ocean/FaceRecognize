@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         initPreview();
         initCameraParameter();
         requestPermission();
-        FaceRecognize.getInstance().initModels(this);
+        FaceRecognize.getInstance().initModels(getAssets());
         ratio = calculateBiasRatio(parameter);
     }
 

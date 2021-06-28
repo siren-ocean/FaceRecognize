@@ -12,7 +12,7 @@
 
 class Recognize {
 public:
-    Recognize(std::vector<std::string> &modelFiles);
+    Recognize(AAssetManager *mgr);
 
     Recognize(const std::string &model_path);
 
