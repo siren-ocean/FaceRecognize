@@ -9,12 +9,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +38,7 @@ import siren.ocean.recognize.util.CommonUtil;
 import siren.ocean.recognize.util.PhotoUtils;
 import siren.ocean.recognize.util.PreferencesUtility;
 import siren.ocean.recognize.util.SimilarUtil;
+import siren.ocean.recognize.util.SpinnerCreator;
 import siren.ocean.recognize.util.ThreadUtil;
 import siren.ocean.recognize.widget.CameraView;
 import siren.ocean.yuv.YuvUtil;
@@ -228,95 +226,51 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void initCameraId() {
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, CommonUtil.getCameraIds());
-        Spinner spinner = findViewById(R.id.sp_camera_id);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(parameter.getCameraId());
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                int cameraId = adapter.getItem(position);
-                if (parameter.getCameraId() == cameraId) return;
-                parameter.setCameraId(cameraId);
-                updateParameter();
-            }
-
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+        int position = parameter.getCameraId();
+        new SpinnerCreator<Integer>().build(this, R.id.sp_camera_id, Arrays.asList(CommonUtil.getCameraIds()), position, value -> {
+            if (parameter.getCameraId() == value) return;
+            parameter.setCameraId(value);
+            updateParameter();
         });
     }
 
     private void initResolution() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, resolutionData);
-        Spinner spinner = findViewById(R.id.sp_resolution);
-        spinner.setAdapter(adapter);
         int[] data = parameter.getResolution();
-        spinner.setSelection(resolutionData.indexOf(data[0] + "X" + data[1]));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                String[] data = adapter.getItem(position).split("X");
-                int[] resolution = new int[]{Integer.parseInt(data[0]), Integer.parseInt(data[1])};
-                if (Arrays.equals(parameter.getResolution(), resolution)) return;
-                parameter.setResolution(resolution);
-                ratio = calculateBiasRatio(parameter);
-                updateParameter();
-            }
-
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+        int position = resolutionData.indexOf(data[0] + "X" + data[1]);
+        new SpinnerCreator<String>().build(this, R.id.sp_resolution, resolutionData, position, value -> {
+            String[] num = value.split("X");
+            int[] resolution = new int[]{Integer.parseInt(num[0]), Integer.parseInt(num[1])};
+            if (Arrays.equals(parameter.getResolution(), resolution)) return;
+            parameter.setResolution(resolution);
+            ratio = calculateBiasRatio(parameter);
+            updateParameter();
         });
     }
 
     private void initOrientation() {
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, anglesData);
-        Spinner spinner = findViewById(R.id.sp_orientation);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(anglesData.indexOf(parameter.getOrientation()));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                int orientation = adapter.getItem(position);
-                if (parameter.getOrientation() == orientation) return;
-                parameter.setOrientation(adapter.getItem(position));
-                updateParameter();
-            }
-
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+        int position = anglesData.indexOf(parameter.getOrientation());
+        new SpinnerCreator<Integer>().build(this, R.id.sp_orientation, anglesData, position, value -> {
+            if (parameter.getOrientation() == value) return;
+            parameter.setOrientation(value);
+            updateParameter();
         });
     }
 
     private void initRotation() {
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, anglesData);
-        Spinner spinner = findViewById(R.id.sp_rotation);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(anglesData.indexOf(parameter.getRotation()));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                int rotation = adapter.getItem(position);
-                if (parameter.getRotation() == rotation) return;
-                parameter.setRotation(adapter.getItem(position));
-                updateParameter();
-            }
-
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+        int position = anglesData.indexOf(parameter.getRotation());
+        new SpinnerCreator<Integer>().build(this, R.id.sp_rotation, anglesData, position, value -> {
+            if (parameter.getRotation() == value) return;
+            parameter.setRotation(value);
+            updateParameter();
         });
     }
 
     private void initMirror() {
-        ArrayAdapter<Boolean> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, mirrorData);
-        Spinner spinner = findViewById(R.id.sp_mirror);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(mirrorData.indexOf(parameter.isMirror()));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                boolean isMirror = adapter.getItem(position);
-                if (parameter.isMirror() == isMirror) return;
-                parameter.setMirror(isMirror);
-                updateParameter();
-            }
-
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+        int position = mirrorData.indexOf(parameter.isMirror());
+        new SpinnerCreator<Boolean>().build(this, R.id.sp_mirror, mirrorData, position, value -> {
+            if (parameter.isMirror() == value) return;
+            parameter.setMirror(value);
+            updateParameter();
         });
     }
 
