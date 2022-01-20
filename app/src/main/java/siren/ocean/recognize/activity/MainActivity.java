@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import pub.devrel.easypermissions.EasyPermissions;
-import siren.ocean.recognize.AppContext;
 import siren.ocean.recognize.FaceRecognize;
 import siren.ocean.recognize.R;
 import siren.ocean.recognize.entity.CameraParameter;
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         initCameraParameter();
         requestPermission();
         FaceRecognize.getInstance().initModels(getAssets());
-        ratio = calculateBiasRatio(parameter);
+        ratio = CommonUtil.calculateBiasRatio(parameter);
     }
 
     private void initView() {
@@ -242,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             int[] resolution = new int[]{Integer.parseInt(num[0]), Integer.parseInt(num[1])};
             if (Arrays.equals(parameter.getResolution(), resolution)) return;
             parameter.setResolution(resolution);
-            ratio = calculateBiasRatio(parameter);
+            ratio = CommonUtil.calculateBiasRatio(parameter);
             updateParameter();
         });
     }
@@ -321,13 +319,5 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private void updateParameter() {
         PreferencesUtility.setCameraParameter(parameter);
         mCameraView.setParameter(parameter.getCameraId(), parameter.getResolution(), parameter.getOrientation());
-    }
-
-    private float calculateBiasRatio(CameraParameter parameter) {
-        int width = CommonUtil.getScreenWidth(AppContext.get());
-        int height = CommonUtil.getScreenHeight(AppContext.get());
-        float bias = width > height ? (width / (float) parameter.getResolution()[0]) : (width / (float) parameter.getResolution()[1]);
-        DecimalFormat format = new DecimalFormat(".0000");
-        return Float.parseFloat(format.format(bias));
     }
 }
