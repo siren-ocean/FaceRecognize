@@ -4,12 +4,10 @@ import android.Manifest;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,13 +22,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import pub.devrel.easypermissions.EasyPermissions;
 import siren.ocean.recognize.FaceRecognize;
 import siren.ocean.recognize.R;
 import siren.ocean.recognize.entity.CameraParameter;
 import siren.ocean.recognize.util.CommonUtil;
+import siren.ocean.recognize.util.DialogHelper;
 import siren.ocean.recognize.util.ParameterControl;
 import siren.ocean.recognize.util.PhotoUtils;
 import siren.ocean.recognize.util.PreferencesUtility;
@@ -72,8 +70,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         tvResult = findViewById(R.id.tv_result);
         ivPhoto = findViewById(R.id.iv_photo);
         mCameraView = findViewById(R.id.view_camera);
+        initSheetBehavior();
+        initGesture();
+        initSurface();
+    }
+
+    private void initSheetBehavior() {
         mSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.include_bottom_sheet));
         mSheetBehavior.setHideable(false);
+    }
+
+    private void initGesture() {
         llGesture = findViewById(R.id.ll_gesture);
         llGesture.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
@@ -81,7 +88,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 mSheetBehavior.setPeekHeight(llGesture.getMeasuredHeight());
             }
         });
+    }
 
+    private void initSurface() {
         SurfaceView surfaceView = findViewById(R.id.view_surface);
         surfaceView.setZOrderOnTop(true);
         mSurfaceHolder = surfaceView.getHolder();
@@ -179,35 +188,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (faceInfo != null && faceInfo.length > 1) {
             float[] feature = FaceRecognize.getInstance().featureExtract(imageData, width, height, faceInfo, FaceRecognize.IMAGE_TYPE_RGBA);
             Bitmap avatar = PhotoUtils.getAvatar(sourceBitmap, faceInfo);
-            showDialog(avatar, feature);
+            DialogHelper.showDialog(this, avatar, feature, memoryMap::put);
         } else {
             Toast.makeText(this, "未检测到人脸", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void showDialog(Bitmap avatar, float[] feature) {
-        EditText editText = new EditText(this);
-        editText.setSingleLine();
-        ImageView imageView = new ImageView(this);
-        imageView.setImageBitmap(avatar);
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setPadding(50, 50, 50, 50);
-        linearLayout.addView(imageView);
-        linearLayout.addView(editText);
-
-        new AlertDialog.Builder(this)
-                .setTitle("请输入姓名")
-                .setView(linearLayout)
-                .setNegativeButton("取消", null)
-                .setPositiveButton("确定", (dialog, which) -> {
-                    String name = editText.getText().toString().trim();
-                    if (TextUtils.isEmpty(name)) {
-                        Toast.makeText(this, "姓名不能为空", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    memoryMap.put(name, feature);
-                }).show();
     }
 
     private void requestPermission() {
