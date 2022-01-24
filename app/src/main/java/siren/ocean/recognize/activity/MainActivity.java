@@ -17,8 +17,6 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,10 +31,10 @@ import siren.ocean.recognize.FaceRecognize;
 import siren.ocean.recognize.R;
 import siren.ocean.recognize.entity.CameraParameter;
 import siren.ocean.recognize.util.CommonUtil;
+import siren.ocean.recognize.util.ParameterControl;
 import siren.ocean.recognize.util.PhotoUtils;
 import siren.ocean.recognize.util.PreferencesUtility;
 import siren.ocean.recognize.util.SimilarUtil;
-import siren.ocean.recognize.util.SpinnerCreator;
 import siren.ocean.recognize.util.ThreadUtil;
 import siren.ocean.recognize.widget.CameraView;
 import siren.ocean.yuv.YuvUtil;
@@ -51,10 +49,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private SurfaceHolder mSurfaceHolder;
     private ImageView ivPhoto;
     private TextView tvResult;
-    private final List<String> resolutionData = new ArrayList<>(Arrays.asList("640X480", "1280X720", "1280X960"));
-    private final List<Integer> anglesData = new ArrayList<>(Arrays.asList(0, 90, 180, 270));
-    private final List<Boolean> mirrorData = new ArrayList<>(Arrays.asList(true, false));
-    private final CameraParameter parameter = PreferencesUtility.getCameraParameter();
+    private CameraParameter mParameter = PreferencesUtility.getCameraParameter();
     private final ExecutorService detectThread = ThreadUtil.getSingleThreadExecutor();//基于检测的单线程策略,尽可能实时绘制人脸框
     private final ExecutorService recognizeThread = ThreadUtil.getSingleThreadExecutor();//基于识别的单线程策略，耗时操作，同时需要计算相似度并匹配结果，独立出来的线程
     private final Map<String, float[]> memoryMap = new HashMap<>();//模拟内存管理
@@ -71,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         initCameraParameter();
         requestPermission();
         FaceRecognize.getInstance().initModels(getAssets());
-        ratio = CommonUtil.calculateBiasRatio(parameter);
+        ratio = CommonUtil.calculateBiasRatio(mParameter);
     }
 
     private void initView() {
@@ -95,21 +90,26 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void initCameraParameter() {
-        initCameraId();
-        initResolution();
-        initOrientation();
-        initRotation();
-        initMirror();
+        new ParameterControl(this, mParameter).build(parameter -> {
+            mParameter = parameter;
+            updateParameter();
+        });
+    }
+
+    private void updateParameter() {
+        PreferencesUtility.setCameraParameter(mParameter);
+        mCameraView.setParameter(mParameter.getCameraId(), mParameter.getResolution(), mParameter.getOrientation());
+        ratio = CommonUtil.calculateBiasRatio(mParameter);
     }
 
     private void initPreview() {
-        mCameraView.setParameter(parameter.getCameraId(), parameter.getResolution(), parameter.getOrientation());
+        mCameraView.setParameter(mParameter.getCameraId(), mParameter.getResolution(), mParameter.getOrientation());
         mCameraView.setPreviewCallback((data, camera) -> {
             mCameraView.addCallbackBuffer();
-            byte[] imageData = YuvUtil.nv21RotateMirror(data, parameter.getResolution()[0], parameter.getResolution()[1], parameter.getRotation(), parameter.isMirror(), 1);
+            byte[] imageData = YuvUtil.nv21RotateMirror(data, mParameter.getResolution()[0], mParameter.getResolution()[1], mParameter.getRotation(), mParameter.isMirror(), 1);
             int w, h;
             //如果流数据做了直角旋转，则必然导致宽高互换
-            if (parameter.getRotation() == 90 || parameter.getRotation() == 270) {
+            if (mParameter.getRotation() == 90 || mParameter.getRotation() == 270) {
                 w = mCameraView.mPreviewHeight;
                 h = mCameraView.mPreviewWidth;
             } else {
@@ -223,55 +223,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }).show();
     }
 
-    private void initCameraId() {
-        int position = parameter.getCameraId();
-        new SpinnerCreator<Integer>().build(this, R.id.sp_camera_id, Arrays.asList(CommonUtil.getCameraIds()), position, value -> {
-            if (parameter.getCameraId() == value) return;
-            parameter.setCameraId(value);
-            updateParameter();
-        });
-    }
-
-    private void initResolution() {
-        int[] data = parameter.getResolution();
-        int position = resolutionData.indexOf(data[0] + "X" + data[1]);
-        new SpinnerCreator<String>().build(this, R.id.sp_resolution, resolutionData, position, value -> {
-            String[] num = value.split("X");
-            int[] resolution = new int[]{Integer.parseInt(num[0]), Integer.parseInt(num[1])};
-            if (Arrays.equals(parameter.getResolution(), resolution)) return;
-            parameter.setResolution(resolution);
-            ratio = CommonUtil.calculateBiasRatio(parameter);
-            updateParameter();
-        });
-    }
-
-    private void initOrientation() {
-        int position = anglesData.indexOf(parameter.getOrientation());
-        new SpinnerCreator<Integer>().build(this, R.id.sp_orientation, anglesData, position, value -> {
-            if (parameter.getOrientation() == value) return;
-            parameter.setOrientation(value);
-            updateParameter();
-        });
-    }
-
-    private void initRotation() {
-        int position = anglesData.indexOf(parameter.getRotation());
-        new SpinnerCreator<Integer>().build(this, R.id.sp_rotation, anglesData, position, value -> {
-            if (parameter.getRotation() == value) return;
-            parameter.setRotation(value);
-            updateParameter();
-        });
-    }
-
-    private void initMirror() {
-        int position = mirrorData.indexOf(parameter.isMirror());
-        new SpinnerCreator<Boolean>().build(this, R.id.sp_mirror, mirrorData, position, value -> {
-            if (parameter.isMirror() == value) return;
-            parameter.setMirror(value);
-            updateParameter();
-        });
-    }
-
     private void requestPermission() {
         String[] perms = {Manifest.permission.CAMERA};
         if (EasyPermissions.hasPermissions(this, perms)) {
@@ -314,10 +265,5 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         detectThread.shutdown();
         recognizeThread.shutdown();
         FaceRecognize.getInstance().faceDeInit();
-    }
-
-    private void updateParameter() {
-        PreferencesUtility.setCameraParameter(parameter);
-        mCameraView.setParameter(parameter.getCameraId(), parameter.getResolution(), parameter.getOrientation());
     }
 }
