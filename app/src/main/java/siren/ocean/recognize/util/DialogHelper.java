@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import siren.ocean.recognize.R;
 
 /**
  * Dialog工具
@@ -32,13 +33,13 @@ public class DialogHelper {
         linearLayout.addView(editText);
 
         new AlertDialog.Builder(activity)
-                .setTitle("请输入姓名")
+                .setTitle(activity.getText(R.string.enter_name))
                 .setView(linearLayout)
-                .setNegativeButton("取消", null)
-                .setPositiveButton("确定", (dialog, which) -> {
+                .setNegativeButton(activity.getText(R.string.cancel), null)
+                .setPositiveButton(activity.getText(R.string.confirm), (dialog, which) -> {
                     String name = editText.getText().toString().trim();
                     if (TextUtils.isEmpty(name)) {
-                        Toast.makeText(activity, "姓名不能为空", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, activity.getText(R.string.name_cannot_be_empty), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     callback.onConfirm(name, feature);

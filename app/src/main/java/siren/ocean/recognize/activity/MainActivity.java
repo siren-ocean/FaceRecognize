@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Bitmap avatar = PhotoUtils.getAvatar(sourceBitmap, faceInfo);
             DialogHelper.showDialog(this, avatar, feature, memoryMap::put);
         } else {
-            Toast.makeText(this, "未检测到人脸", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getText(R.string.no_face_be_detection), Toast.LENGTH_SHORT).show();
         }
     }
 
