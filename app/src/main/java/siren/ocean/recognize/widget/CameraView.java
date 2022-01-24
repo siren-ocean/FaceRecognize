@@ -11,6 +11,7 @@ import java.util.List;
 
 import siren.ocean.recognize.entity.CameraParameter;
 import siren.ocean.recognize.util.ThreadUtil;
+import siren.ocean.yuv.YuvUtil;
 
 
 /**
@@ -21,10 +22,7 @@ public class CameraView extends TextureView {
 
     private final static String TAG = "CameraView";
     private Camera mCamera;
-    public int mPreviewWidth = 640;
-    public int mPreviewHeight = 480;
-    private int orientation;
-    private int cameraId;
+    private CameraParameter mParameter;
 
     public CameraView(Context context) {
         this(context, null, 0);
@@ -43,7 +41,7 @@ public class CameraView extends TextureView {
             if (isAvailable()) {
                 Log.d(TAG, "openCamera: ");
                 releaseCamera();
-                mCamera = Camera.open(cameraId);
+                mCamera = Camera.open(mParameter.getCameraId());
                 mCamera.setPreviewTexture(getSurfaceTexture());
                 initParameter();
             }
@@ -96,8 +94,8 @@ public class CameraView extends TextureView {
      */
     private void initPreviewSize() {
         Parameters parameters = mCamera.getParameters();
-        Log.d("initPreviewSize: ", mPreviewWidth + ":::" + mPreviewHeight);
-        parameters.setPreviewSize(mPreviewWidth, mPreviewHeight); // 设置预览分辨率
+        Log.d("initPreviewSize: ", mParameter.getResolution()[0] + ":::" + mParameter.getResolution()[1]);
+        parameters.setPreviewSize(mParameter.getResolution()[0], mParameter.getResolution()[1]); // 设置预览分辨率
         mCamera.setParameters(parameters);
     }
 
@@ -105,7 +103,7 @@ public class CameraView extends TextureView {
      * 设置相机显示的方向
      */
     private void initDisplayOrientation() {
-        mCamera.setDisplayOrientation(orientation);
+        mCamera.setDisplayOrientation(mParameter.getOrientation());
     }
 
     /**
@@ -125,7 +123,7 @@ public class CameraView extends TextureView {
         int originalWidth = MeasureSpec.getSize(widthMeasureSpec);
         int originalHeight = MeasureSpec.getSize(heightMeasureSpec);
         int finalWidth, finalHeight;
-        float scale = (float) mPreviewHeight / (float) mPreviewWidth;
+        float scale = (float) mParameter.getResolution()[1] / (float) mParameter.getResolution()[0];
         if (originalWidth < originalHeight) {
             finalWidth = originalWidth;
             finalHeight = (int) (finalWidth / scale);
@@ -140,13 +138,30 @@ public class CameraView extends TextureView {
     public byte[] mPreviewBuffer;
 
     private void initPreviewBuffer() {
-        mPreviewBuffer = new byte[mPreviewWidth * mPreviewHeight * 3 / 2]; // 初始化预览缓冲数据的大小
+        mPreviewBuffer = new byte[mParameter.getResolution()[0] * mParameter.getResolution()[1] * 3 / 2]; // 初始化预览缓冲数据的大小
         mCamera.addCallbackBuffer(mPreviewBuffer); // 将此预览缓冲数据添加到相机预览缓冲数据队列里
         mCamera.setPreviewCallbackWithBuffer(mPreviewCallback); // 设置预览的回调
     }
 
-    public void setPreviewCallback(Camera.PreviewCallback previewCallback) {
-        mPreviewCallback = previewCallback;
+    public interface PreviewCallback {
+        void onPreviewFrame(byte[] data, int width, int height);
+    }
+
+    public void setPreviewCallback(PreviewCallback callback) {
+        mPreviewCallback = (data, camera) -> {
+            addCallbackBuffer();
+            byte[] imageData = YuvUtil.nv21RotateMirror(data, mParameter.getResolution()[0], mParameter.getResolution()[1], mParameter.getRotation(), mParameter.isMirror(), 1);
+            int w, h;
+            //如果流数据做了直角旋转，则必然导致宽高互换
+            if (mParameter.getRotation() == 90 || mParameter.getRotation() == 270) {
+                w = mParameter.getResolution()[1];
+                h = mParameter.getResolution()[0];
+            } else {
+                w = mParameter.getResolution()[0];
+                h = mParameter.getResolution()[1];
+            }
+            callback.onPreviewFrame(imageData, w, h);
+        };
     }
 
     /**
@@ -159,10 +174,7 @@ public class CameraView extends TextureView {
     }
 
     public void setParameter(CameraParameter parameter) {
-        this.cameraId = parameter.getCameraId();
-        this.mPreviewWidth = parameter.getResolution()[0];
-        this.mPreviewHeight = parameter.getResolution()[1];
-        this.orientation = parameter.getOrientation();
+        this.mParameter = parameter;
         openCamera();
     }
 }

@@ -37,7 +37,6 @@ import siren.ocean.recognize.util.PreferencesUtility;
 import siren.ocean.recognize.util.SimilarUtil;
 import siren.ocean.recognize.util.ThreadUtil;
 import siren.ocean.recognize.widget.CameraView;
-import siren.ocean.yuv.YuvUtil;
 
 /**
  * 主页
@@ -104,21 +103,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void initPreview() {
         mCameraView.setParameter(mParameter);
-        mCameraView.setPreviewCallback((data, camera) -> {
-            mCameraView.addCallbackBuffer();
-            byte[] imageData = YuvUtil.nv21RotateMirror(data, mParameter.getResolution()[0], mParameter.getResolution()[1], mParameter.getRotation(), mParameter.isMirror(), 1);
-            int w, h;
-            //如果流数据做了直角旋转，则必然导致宽高互换
-            if (mParameter.getRotation() == 90 || mParameter.getRotation() == 270) {
-                w = mCameraView.mPreviewHeight;
-                h = mCameraView.mPreviewWidth;
-            } else {
-                w = mCameraView.mPreviewWidth;
-                h = mCameraView.mPreviewHeight;
-            }
-
-            detectFace(imageData, w, h);
-            ivPhoto.setImageBitmap(PhotoUtils.nv21ToBitmap(this, imageData, w, h));
+        mCameraView.setPreviewCallback((imageData, width, height) -> {
+            detectFace(imageData, width, height);
+            ivPhoto.setImageBitmap(PhotoUtils.nv21ToBitmap(this, imageData, width, height));
         });
     }
 
