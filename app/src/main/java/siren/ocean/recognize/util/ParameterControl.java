@@ -41,6 +41,9 @@ public class ParameterControl {
         initMirror();
     }
 
+    /**
+     * 初始化摄像头参数
+     */
     private void initCameraId() {
         int position = mParameter.getCameraId();
         new SpinnerCreator<Integer>().build(mActivity, R.id.sp_camera_id, Arrays.asList(CommonUtil.getCameraIds()), position, value -> {
@@ -50,6 +53,9 @@ public class ParameterControl {
         });
     }
 
+    /**
+     * 初始化分辨率
+     */
     private void initResolution() {
         int[] data = mParameter.getResolution();
         int position = resolutionData.indexOf(data[0] + "X" + data[1]);
@@ -62,6 +68,9 @@ public class ParameterControl {
         });
     }
 
+    /**
+     * 初始化预览旋转角度
+     */
     private void initOrientation() {
         int position = anglesData.indexOf(mParameter.getOrientation());
         new SpinnerCreator<Integer>().build(mActivity, R.id.sp_orientation, anglesData, position, value -> {
@@ -71,6 +80,9 @@ public class ParameterControl {
         });
     }
 
+    /**
+     * 初始化流旋转角度
+     */
     private void initRotation() {
         int position = anglesData.indexOf(mParameter.getRotation());
         new SpinnerCreator<Integer>().build(mActivity, R.id.sp_rotation, anglesData, position, value -> {
@@ -80,6 +92,9 @@ public class ParameterControl {
         });
     }
 
+    /**
+     * 初始化流镜像
+     */
     private void initMirror() {
         int position = mirrorData.indexOf(mParameter.isMirror());
         new SpinnerCreator<Boolean>().build(mActivity, R.id.sp_mirror, mirrorData, position, value -> {

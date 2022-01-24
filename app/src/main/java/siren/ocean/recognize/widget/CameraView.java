@@ -9,6 +9,7 @@ import android.view.TextureView;
 
 import java.util.List;
 
+import siren.ocean.recognize.entity.CameraParameter;
 import siren.ocean.recognize.util.ThreadUtil;
 
 
@@ -157,11 +158,11 @@ public class CameraView extends TextureView {
         }
     }
 
-    public void setParameter(int cameraId, int[] resolution, int orientation) {
-        this.cameraId = cameraId;
-        this.mPreviewWidth = resolution[0];
-        this.mPreviewHeight = resolution[1];
-        this.orientation = orientation;
+    public void setParameter(CameraParameter parameter) {
+        this.cameraId = parameter.getCameraId();
+        this.mPreviewWidth = parameter.getResolution()[0];
+        this.mPreviewHeight = parameter.getResolution()[1];
+        this.orientation = parameter.getOrientation();
         openCamera();
     }
 }

@@ -98,12 +98,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void updateParameter() {
         PreferencesUtility.setCameraParameter(mParameter);
-        mCameraView.setParameter(mParameter.getCameraId(), mParameter.getResolution(), mParameter.getOrientation());
+        mCameraView.setParameter(mParameter);
         ratio = CommonUtil.calculateBiasRatio(mParameter);
     }
 
     private void initPreview() {
-        mCameraView.setParameter(mParameter.getCameraId(), mParameter.getResolution(), mParameter.getOrientation());
+        mCameraView.setParameter(mParameter);
         mCameraView.setPreviewCallback((data, camera) -> {
             mCameraView.addCallbackBuffer();
             byte[] imageData = YuvUtil.nv21RotateMirror(data, mParameter.getResolution()[0], mParameter.getResolution()[1], mParameter.getRotation(), mParameter.isMirror(), 1);
