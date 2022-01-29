@@ -33,6 +33,32 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingStart="20dp"
+            android:text="Phone Cam"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_phone_cam"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:paddingEnd="18dp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:drawableEndCompat="@drawable/ic_drop_down_arrow" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="20dp"
             android:text="Camera ID"
             android:textSize="18sp" />
 

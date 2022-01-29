@@ -3,6 +3,7 @@ package siren.ocean.recognize.util;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import java.text.DecimalFormat;
 
@@ -64,5 +65,29 @@ public class CommonUtil {
         float bias = width > height ? (width / (float) parameter.getResolution()[0]) : (width / (float) parameter.getResolution()[1]);
         DecimalFormat format = new DecimalFormat(".0000");
         return Float.parseFloat(format.format(bias));
+    }
+
+    /**
+     * dp to px
+     *
+     * @param dp
+     * @param context
+     * @return
+     */
+    public static int dpToPx(Context context, float dp) {
+        return (int) applyDimension(context, TypedValue.COMPLEX_UNIT_DIP, dp);
+    }
+
+    /**
+     * 单位转换
+     *
+     * @param context
+     * @param unit    TypedValue.COMPLEX_UNIT_DIP
+     * @param value   px
+     * @return
+     */
+    public static float applyDimension(Context context, int unit, float value) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(unit, value, displayMetrics);
     }
 }

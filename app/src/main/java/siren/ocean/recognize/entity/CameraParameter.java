@@ -61,6 +61,34 @@ public class CameraParameter {
         isMirror = mirror;
     }
 
+    public boolean isFrontCamera() {
+        return cameraId == 1 && rotation == 270 && orientation == 90 && isMirror;
+    }
+
+    /**
+     * 设置为手机前置摄像头标准参数
+     */
+    public void setFrontCamera() {
+        this.cameraId = 1;
+        this.rotation = 270;
+        this.orientation = 90;
+        this.isMirror = true;
+    }
+
+    public boolean isBackCamera() {
+        return cameraId == 0 && rotation == 90 && orientation == 90 && !isMirror;
+    }
+
+    /**
+     * 设置为手机后置摄像头标准参数
+     */
+    public void setBackCamera() {
+        this.cameraId = 0;
+        this.rotation = 90;
+        this.orientation = 90;
+        this.isMirror = false;
+    }
+
     @Override
     public String toString() {
         return "CameraParameter{" +

@@ -8,6 +8,7 @@ import android.widget.Spinner;
 
 import java.util.List;
 
+import androidx.annotation.IdRes;
 import siren.ocean.recognize.R;
 
 /**
@@ -16,22 +17,39 @@ import siren.ocean.recognize.R;
  */
 public class SpinnerCreator<V> {
 
+    private final Activity activity;
+    private final Spinner spinner;
+
     public interface Callback<V> {
         void onItemSelected(V v);
     }
 
-    public void build(Activity activity, int id, List<V> data, int position, Callback<V> callback) {
-        ArrayAdapter<V> adapter = new ArrayAdapter<V>(activity, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, data);
-        Spinner spinner = activity.findViewById(id);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(position);
+    public SpinnerCreator(Activity activity, @IdRes int id) {
+        this.activity = activity;
+        spinner = activity.findViewById(id);
+    }
+
+    public SpinnerCreator<V> setCallback(Callback<V> callback) {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                callback.onItemSelected(adapter.getItem(position));
+                V value = (V) spinner.getAdapter().getItem(position);
+                callback.onItemSelected(value);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
+        return this;
+    }
+
+    public SpinnerCreator<V> setData(List<V> data) {
+        ArrayAdapter<V> adapter = new ArrayAdapter<>(activity, R.layout.support_simple_spinner_dropdown_item, android.R.id.text1, data);
+        spinner.setAdapter(adapter);
+        return this;
+    }
+
+    public SpinnerCreator<V> setSelection(int position) {
+        spinner.setSelection(position);
+        return this;
     }
 }

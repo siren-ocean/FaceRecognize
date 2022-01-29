@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void initCameraParameter() {
-        new ParameterControl(this, mParameter).build(parameter -> {
+        new ParameterControl(this, mParameter).setCallback(parameter -> {
             mParameter = parameter;
             updateParameter();
         });
