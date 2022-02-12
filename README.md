@@ -41,13 +41,10 @@ NDK: android-ndk-r19c
 
 ```
 
-1. 检测模型用到mtcnn，并只检测最大人脸，提升检测速度。
-2. 识别模型使用insightface的长度为128的mobilefacenet，用于提取人脸特征。
-3. 一般特征值会保存进数据库，这里就不加了，避免提升整体的复杂度。
-4. 正常情况下内存也会预留一份特征数组，方便计算结果，一般用LRU策略，此处使用简单的Map模拟一下计算方式。
 
-计算相似度。
----
+### 计算相似度。
+提供1:1 和 1:N匹配方法
+<br>
 
 ```
 /**
@@ -64,6 +61,92 @@ public static float[] distanceArray(float[] p, float[][] array)；
  public static float distance(float[] p1, float[] p2);
 ```
 
+### mtcnn检测
+模型用到mtcnn，检测最大人脸，提升检测速度
+<br>
+
+```
+//根据不同数据类型转ncnn::Mat
+ncnn::Mat ncnn_img = jniutils::formatMat((unsigned char *) imageData, imageWidth, imageHeight,
+                                             imageType);
+if (ncnn_img.data == nullptr) {
+    env->ReleaseByteArrayElements(imageData_, imageData, 0);
+    return nullptr;
+}
+
+std::vector<Bbox> finalBbox;
+mtcnn->detectMaxFace(ncnn_img, finalBbox);
+```
+
+### mobilefacenet识别
+识别模型使用insightface的长度为128的mobilefacenet，用于提取人脸特征。
+<br>
+
+```
+ncnn::Mat out;
+ncnn::Extractor ex = Recognet.create_extractor();
+ex.set_num_threads(threadnum);
+ex.set_light_mode(true);
+ex.input("data", img_);
+ex.extract("fc1", out);
+
+for (int j = 0; j < 128; j++) {
+    feature_out[j] = out[j];
+}
+```
+
+### 数据管理
+正常业务情况下会用到数据库，内存管理则用到Map + LRU策略，此处使用普通的Map模拟一下
+<br>
+
+```
+//模拟内存管理Map
+private final Map<String, float[]> memoryMap = new HashMap<>();
+
+//map转数组类型方便计算
+private float[][] getMemoryFeatures() {
+	if (memoryMap.size() == 0) {
+	    return null;
+	}
+	
+	int len = memoryMap.size();
+	float[][] fea = new float[len][128];
+	int i = 0;
+	for (Map.Entry<String, float[]> entry : memoryMap.entrySet()) {
+	    fea[i++] = entry.getValue();
+	}
+	return fea;
+}
+
+//根据index返回用户名
+private String getNameByIndex(int index) {
+	Iterator<Map.Entry<String, float[]>> iterator = memoryMap.entrySet().iterator();
+	for (int i = 0; i < index; i++) {
+	    iterator.next();
+	}
+	return iterator.next().getKey();
+}
+```
+
+### 拍照注册
+将图片bitmap直接转RGBA数据，通过检测人脸，提取特征，用户输入名字保存到Map
+<br>
+
+
+```
+int[] faceInfo = FaceRecognize.getInstance().detectFace(imageData, width, height, FaceRecognize.IMAGE_TYPE_RGBA);
+if (faceInfo != null && faceInfo.length > 1) {
+    float[] feature = FaceRecognize.getInstance().featureExtract(imageData, width, height, faceInfo, FaceRecognize.IMAGE_TYPE_RGBA);
+    Bitmap avatar = PhotoUtils.getAvatar(sourceBitmap, faceInfo);
+    DialogHelper.showDialog(this, avatar, feature, new DialogHelper.EnterCallback() {
+        @Override
+        public void onConfirm(String name, float[] feature) {
+            //保存注册人员的姓名与指定的特征
+            memoryMap.put(name, feature);
+        }
+    });
+}
+```
 
 
 ### 参考
