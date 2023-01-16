@@ -3,7 +3,8 @@
 该项目在YuvUtil的基础上，实现摄像头实时检测人脸，以及绘制人脸框。加入拍照录入人脸，和获取特征值。并模拟特征内存块管理，进行1：N匹配结果，显示最近似人员和相似度。
 
 ---
-![avatar](demonstration.gif)
+![avatar](demonstration1.gif)
+![avatar](demonstration2.gif)
 
 ### 环境
 NCNN: android 预编译库 20210525 f6c4952  
